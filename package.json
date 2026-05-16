@@ -4,6 +4,7 @@
   "description": "Unofficial tool: monitor your DeepSeek API balance in VS Code. Securely stores your API key in system keychain.",
   "version": "0.2.0",
   "publisher": "deepseek-balance",
+  "icon": "media/logo-256.png",
   "license": "MIT",
   "repository": {
     "type": "git",
