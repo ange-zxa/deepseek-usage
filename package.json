@@ -1,9 +1,9 @@
 {
-  "name": "deepseek-balance",
-  "displayName": "DeepSeek Balance",
+  "name": "deepseek-usage",
+  "displayName": "DeepSeek Usage",
   "description": "Unofficial tool: monitor your DeepSeek API balance in VS Code. Securely stores your API key in system keychain.",
   "version": "0.3.0",
-  "publisher": "deepseek-balance",
+  "publisher": "deepseek-usage",
   "icon": "media/logo-256.png",
   "license": "MIT",
   "repository": {
@@ -28,28 +28,28 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "deepseek-balance-sidebar",
-          "title": "DeepSeek Balance",
+          "id": "deepseek-usage-sidebar",
+          "title": "DeepSeek Usage",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "deepseek-balance-sidebar": [
+      "deepseek-usage-sidebar": [
         {
           "type": "webview",
-          "id": "deepseek-chat.balanceView",
+          "id": "deepseek-usage.balanceView",
           "name": "Balance"
         }
       ]
     },
     "commands": [
       {
-        "command": "deepseek-chat.refreshBalance",
+        "command": "deepseek-usage.refreshBalance",
         "title": "DeepSeek: Refresh Balance"
       },
       {
-        "command": "deepseek-chat.setApiKey",
+        "command": "deepseek-usage.setApiKey",
         "title": "DeepSeek: Set API Key"
       }
     ]

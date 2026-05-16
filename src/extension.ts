@@ -16,7 +16,7 @@ async function refreshBalance() {
   if (!apiKey) {
     statusBarItem.text = '$(key) DeepSeek: Set API Key';
     statusBarItem.tooltip = 'Click to securely store your API key';
-    statusBarItem.command = 'deepseek-chat.setApiKey';
+    statusBarItem.command = 'deepseek-usage.setApiKey';
     statusBarItem.backgroundColor = undefined;
     return;
   }
@@ -61,22 +61,22 @@ export function activate(ctx: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Right,
     100
   );
-  statusBarItem.command = 'deepseek-chat.refreshBalance';
-  statusBarItem.name = 'DeepSeek Balance';
+  statusBarItem.command = 'deepseek-usage.refreshBalance';
+  statusBarItem.name = 'DeepSeek Usage';
   context.subscriptions.push(statusBarItem);
   statusBarItem.show();
   refreshBalance();
 
   // Command: refresh balance
   context.subscriptions.push(
-    vscode.commands.registerCommand('deepseek-chat.refreshBalance', () =>
+    vscode.commands.registerCommand('deepseek-usage.refreshBalance', () =>
       refreshBalance()
     )
   );
 
   // Command: securely set API key
   context.subscriptions.push(
-    vscode.commands.registerCommand('deepseek-chat.setApiKey', async () => {
+    vscode.commands.registerCommand('deepseek-usage.setApiKey', async () => {
       const existing = await context.secrets.get(SECRET_KEY);
       const masked = existing
         ? existing.slice(0, 6) + '••••••••' + existing.slice(-4)

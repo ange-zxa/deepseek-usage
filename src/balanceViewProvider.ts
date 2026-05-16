@@ -4,7 +4,7 @@ import { ExtensionMessage, WebviewMessage } from './types';
 import { fetchBalance } from './deepseekClient';
 
 export class BalanceViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewId = 'deepseek-chat.balanceView';
+  public static readonly viewId = 'deepseek-usage.balanceView';
   private _view?: vscode.WebviewView;
   private _context: vscode.ExtensionContext;
   private _onBalanceChanged: () => void;
@@ -38,7 +38,7 @@ export class BalanceViewProvider implements vscode.WebviewViewProvider {
             await this._fetchAndSendBalance();
             break;
           case 'setApiKey':
-            vscode.commands.executeCommand('deepseek-chat.setApiKey');
+            vscode.commands.executeCommand('deepseek-usage.setApiKey');
             break;
         }
       }
