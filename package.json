@@ -1,0 +1,68 @@
+{
+  "name": "deepseek-balance",
+  "displayName": "DeepSeek Balance",
+  "description": "Unofficial tool: monitor your DeepSeek API balance in VS Code. Securely stores your API key in system keychain.",
+  "version": "0.2.0",
+  "publisher": "deepseek-balance",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/deepseek-balance"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "deepseek",
+    "balance",
+    "api",
+    "dashboard"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "deepseek-balance-sidebar",
+          "title": "DeepSeek Balance",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "deepseek-balance-sidebar": [
+        {
+          "type": "webview",
+          "id": "deepseek-chat.balanceView",
+          "name": "Balance"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "deepseek-chat.refreshBalance",
+        "title": "DeepSeek: Refresh Balance"
+      },
+      {
+        "command": "deepseek-chat.setApiKey",
+        "title": "DeepSeek: Set API Key"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.1",
+    "typescript": "^5.3.0"
+  }
+}
