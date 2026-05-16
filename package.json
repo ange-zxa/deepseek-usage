@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ange-zxa/deepseek-balance"
+    "url": "https://github.com/ange-zxa/deepseek-usage"
   },
   "engines": {
     "vscode": "^1.85.0"
