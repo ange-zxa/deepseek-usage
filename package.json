@@ -2,7 +2,7 @@
   "name": "deepseek-usage",
   "displayName": "DeepSeek Usage",
   "description": "Unofficial tool: monitor your DeepSeek API balance in VS Code. Securely stores your API key in system keychain.",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "publisher": "deepseek-usage",
   "icon": "media/logo-256.png",
   "license": "MIT",
@@ -22,7 +22,9 @@
     "api",
     "dashboard"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {

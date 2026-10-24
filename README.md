@@ -9,7 +9,7 @@ A cute, minimal dashboard to monitor your DeepSeek API balance right in VS Code.
 - Beautiful dashboard with real-time balance display
 - Status bar indicator showing balance at a glance
 - API key stored securely in system keychain (macOS Keychain / Windows Credential Manager)
-- Auto-refresh every 30 seconds
+- Auto-refresh every 5 minutes, and immediately when the VS Code window regains focus
 
 ## Setup
 

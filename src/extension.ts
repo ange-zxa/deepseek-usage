@@ -7,7 +7,10 @@ const SECRET_KEY = 'deepseek-usage.apiKey';
 // The extension used to be called "deepseek-chat", so old installs stored the
 // key under that name. Migrate it on first read.
 const LEGACY_SECRET_KEY = 'deepseek-chat.apiKey';
-const REFRESH_INTERVAL_MS = 30_000;
+const REFRESH_INTERVAL_MS = 5 * 60_000;
+// Refreshing on focus is cheap but should not hammer the API when the user
+// alt-tabs repeatedly.
+const FOCUS_REFRESH_THROTTLE_MS = 60_000;
 const NO_API_KEY = 'No API key configured';
 
 let statusBarItem: vscode.StatusBarItem;
@@ -16,6 +19,7 @@ let context: vscode.ExtensionContext;
 let lastState: BalanceState | undefined;
 let refreshTimer: NodeJS.Timeout | undefined;
 let refreshInFlight: Promise<void> | undefined;
+let lastRefreshAt = 0;
 
 async function getApiKey(): Promise<string> {
   const secret = await context.secrets.get(SECRET_KEY);
@@ -85,6 +89,7 @@ function refreshBalance(): Promise<void> {
   }
 
   refreshInFlight = (async () => {
+    lastRefreshAt = Date.now();
     try {
       const apiKey = await getApiKey();
       if (!apiKey) {
@@ -142,6 +147,19 @@ export function activate(ctx: vscode.ExtensionContext) {
   refreshTimer = setInterval(() => {
     void refreshBalance();
   }, REFRESH_INTERVAL_MS);
+
+  // Refresh when the window regains focus so the balance is fresh when the
+  // user comes back, without polling aggressively while it is in the background.
+  context.subscriptions.push(
+    vscode.window.onDidChangeWindowState((state) => {
+      if (
+        state.focused &&
+        Date.now() - lastRefreshAt >= FOCUS_REFRESH_THROTTLE_MS
+      ) {
+        void refreshBalance();
+      }
+    })
+  );
 
   // Command: refresh balance
   context.subscriptions.push(
