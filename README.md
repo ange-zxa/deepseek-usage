@@ -1,8 +1,10 @@
-# DeepSeek Balance
+# DeepSeek Usage
 
 > ⚠️ This is an **unofficial** third-party tool. Not affiliated with or endorsed by DeepSeek (深度求索).
 
 A cute, minimal dashboard to monitor your DeepSeek API balance right in VS Code.
+
+![DeepSeek Usage panel showing the whale-girl mascot in four states](https://raw.githubusercontent.com/ange-zxa/deepseek-usage/main/docs/preview/panel-states.png)
 
 ## Features
 
