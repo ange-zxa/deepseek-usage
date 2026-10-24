@@ -6,9 +6,6 @@ const vscode = acquireVsCodeApi();
 const dashboard = document.getElementById('dashboard');
 const MASCOTS = ['🐳', '🦭', '🦋', '🐣', '🐙', '🦊', '🐶', '🐱', '🐼', '🦄'];
 
-let currentBalance = null;
-let isSettingUp = false;
-
 // Pick a random mascot (stable per session)
 const mascot = MASCOTS[Math.floor(Math.random() * MASCOTS.length)];
 
@@ -18,8 +15,9 @@ window.addEventListener('message', (event) => {
   render(msg.balance, msg.error);
 });
 
-// Request balance on load
-vscode.postMessage({ type: 'refreshBalance' });
+// Tell the extension the webview is ready to receive messages. The extension
+// owns the refresh timer and will push the latest balance down.
+vscode.postMessage({ type: 'ready' });
 
 /**
  * @param {{ isAvailable: boolean; currency: string; totalBalance: string; grantedBalance: string; toppedUpBalance: string; } | null} balance
@@ -29,14 +27,12 @@ function render(balance, error) {
   if (!dashboard) return;
 
   if (error) {
-    currentBalance = null;
     dashboard.innerHTML = getSetupHTML(error);
     bindSetupButton();
     return;
   }
 
   if (!balance || !balance.isAvailable) {
-    currentBalance = null;
     dashboard.innerHTML = getSetupHTML('Balance unavailable');
     bindSetupButton();
     return;
@@ -45,10 +41,7 @@ function render(balance, error) {
   const total = parseFloat(balance.totalBalance);
   const granted = parseFloat(balance.grantedBalance);
   const toppedUp = parseFloat(balance.toppedUpBalance);
-  const maxAmount = Math.max(total, 100);
-  const usagePercent = Math.min((toppedUp / (total || 1)) * 100, 100);
-
-  currentBalance = balance;
+  const toppedUpShare = Math.min((toppedUp / (total || 1)) * 100, 100);
 
   const level = total >= 100 ? 'Plentiful 🌟' : total >= 50 ? 'Comfortable ✨' : total >= 10 ? 'Moderate 💫' : 'Low 😅';
   const progressClass = total < 10 ? 'low' : '';
@@ -75,8 +68,8 @@ function render(balance, error) {
     + '</div>'
     + '<div class="progress-section">'
     +   '<div class="progress-header">'
-    +     '<span>Top-up usage</span>'
-    +     '<span>' + (usagePercent < 0.1 ? '0' : usagePercent.toFixed(1)) + '%</span>'
+    +     '<span title="Share of your current balance that came from top-ups">Topped-up share</span>'
+    +     '<span>' + (toppedUpShare < 0.1 ? '0' : toppedUpShare.toFixed(1)) + '%</span>'
     +   '</div>'
     +   '<div class="progress-bar"><div class="progress-fill ' + progressClass + '" id="progress-fill" style="width:0%"></div></div>'
     + '</div>'
@@ -95,12 +88,11 @@ function render(balance, error) {
   // Animate progress bar
   requestAnimationFrame(() => {
     const bar = document.getElementById('progress-fill');
-    if (bar) bar.style.width = usagePercent + '%';
+    if (bar) bar.style.width = toppedUpShare + '%';
   });
 }
 
 function getSetupHTML(msg) {
-  isSettingUp = true;
   return ''
     + '<div style="text-align:center;padding:40px 20px;">'
     +   '<div style="font-size:64px;margin-bottom:16px;">🔑</div>'
@@ -180,24 +172,3 @@ function escapeHtml(text) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
-
-// Auto-refresh animation trigger when message received from extension
-const origHandler = window.onmessage;
-window.addEventListener('message', (event) => {
-  const msg = event.data;
-  if (!msg || msg.type !== 'balanceUpdate') return;
-  updateTimestamp();
-  const amountEl = document.getElementById('balance-amount');
-  if (amountEl && msg.balance) {
-    // Smooth number transition
-    amountEl.style.transition = 'all 0.3s ease';
-    amountEl.style.transform = 'scale(1.05)';
-    setTimeout(() => { amountEl.style.transform = 'scale(1)'; }, 150);
-    amountEl.textContent = formatNumber(parseFloat(msg.balance.totalBalance));
-  }
-});
-
-// Refresh every 30 seconds
-setInterval(() => {
-  vscode.postMessage({ type: 'refreshBalance' });
-}, 30000);

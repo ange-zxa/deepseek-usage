@@ -2,7 +2,7 @@
   "name": "deepseek-usage",
   "displayName": "DeepSeek Usage",
   "description": "Unofficial tool: monitor your DeepSeek API balance in VS Code. Securely stores your API key in system keychain.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "deepseek-usage",
   "icon": "media/logo-256.png",
   "license": "MIT",
@@ -58,12 +58,19 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src",
+    "test": "npm run compile && node --test \"out/test/*.test.js\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.9.1",
-    "typescript": "^5.3.0"
+    "eslint": "^10.13.0",
+    "typescript": "^5.3.0",
+    "typescript-eslint": "^8.72.0"
+  },
+  "overrides": {
+    "@azure/msal-node": "^7.1.1"
   }
 }

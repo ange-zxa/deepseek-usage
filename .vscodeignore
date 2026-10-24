@@ -2,7 +2,10 @@
 .vscode-test/**
 src/**
 tsconfig.json
+eslint.config.mjs
 .gitignore
+.DS_Store
+**/*.vsix
 node_modules/**
 out/**
 !out/extension.js

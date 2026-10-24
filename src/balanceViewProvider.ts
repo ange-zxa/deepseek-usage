@@ -1,18 +1,22 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { ExtensionMessage, WebviewMessage } from './types';
-import { fetchBalance } from './deepseekClient';
+import { BalanceState, ExtensionMessage, WebviewMessage } from './types';
 
 export class BalanceViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewId = 'deepseek-usage.balanceView';
   private _view?: vscode.WebviewView;
-  private _context: vscode.ExtensionContext;
-  private _onBalanceChanged: () => void;
-  private _refreshInterval: NodeJS.Timeout | null = null;
+  private readonly _context: vscode.ExtensionContext;
+  private readonly _onRefreshRequested: () => void;
+  private readonly _getLastState: () => BalanceState | undefined;
 
-  constructor(context: vscode.ExtensionContext, onBalanceChanged: () => void) {
+  constructor(
+    context: vscode.ExtensionContext,
+    onRefreshRequested: () => void,
+    getLastState: () => BalanceState | undefined
+  ) {
     this._context = context;
-    this._onBalanceChanged = onBalanceChanged;
+    this._onRefreshRequested = onRefreshRequested;
+    this._getLastState = getLastState;
   }
 
   resolveWebviewView(
@@ -31,78 +35,31 @@ export class BalanceViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.html = this._getHtmlContent(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage(
-      async (message: WebviewMessage) => {
-        switch (message.type) {
-          case 'refreshBalance':
-            await this._fetchAndSendBalance();
-            break;
-          case 'setApiKey':
-            vscode.commands.executeCommand('deepseek-usage.setApiKey');
-            break;
+    webviewView.webview.onDidReceiveMessage((message: WebviewMessage) => {
+      switch (message.type) {
+        case 'ready': {
+          // The webview script has loaded and can receive messages now.
+          const state = this._getLastState();
+          if (state) {
+            this.update(state.balance, state.error);
+          } else {
+            this._onRefreshRequested();
+          }
+          break;
         }
-      }
-    );
-
-    // Auto-refresh on visible
-    webviewView.onDidChangeVisibility(() => {
-      if (webviewView.visible) {
-        this._fetchAndSendBalance();
-        this._startAutoRefresh();
-      } else {
-        this._stopAutoRefresh();
+        case 'refreshBalance':
+          this._onRefreshRequested();
+          break;
+        case 'setApiKey':
+          vscode.commands.executeCommand('deepseek-usage.setApiKey');
+          break;
       }
     });
-
-    // Initial fetch + auto-refresh
-    this._fetchAndSendBalance();
-    this._startAutoRefresh();
   }
 
-  public async refresh(): Promise<void> {
-    await this._fetchAndSendBalance();
-  }
-
-  private _startAutoRefresh(): void {
-    this._stopAutoRefresh();
-    this._refreshInterval = setInterval(() => {
-      this._fetchAndSendBalance();
-    }, 30000);
-  }
-
-  private _stopAutoRefresh(): void {
-    if (this._refreshInterval) {
-      clearInterval(this._refreshInterval);
-      this._refreshInterval = null;
-    }
-  }
-
-  private async _getApiKey(): Promise<string> {
-    const secretKey = await this._context.secrets.get('deepseek-chat.apiKey');
-    return secretKey || '';
-  }
-
-  private async _fetchAndSendBalance(): Promise<void> {
-    const apiKey = await this._getApiKey();
-    if (!apiKey) {
-      this._sendToWebview({
-        type: 'balanceUpdate',
-        balance: null,
-        error: 'No API key configured',
-      });
-      return;
-    }
-    try {
-      const balance = await fetchBalance(apiKey);
-      this._sendToWebview({ type: 'balanceUpdate', balance });
-    } catch (err) {
-      this._sendToWebview({
-        type: 'balanceUpdate',
-        balance: null,
-        error: err instanceof Error ? err.message : 'Failed to fetch balance',
-      });
-    }
-    this._onBalanceChanged();
+  /** Push the latest balance (or error) into the webview. */
+  public update(balance: BalanceState['balance'], error?: string): void {
+    this._sendToWebview({ type: 'balanceUpdate', balance, error });
   }
 
   private _sendToWebview(message: ExtensionMessage): void {
@@ -121,7 +78,7 @@ export class BalanceViewProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' vscode-resource:; script-src 'unsafe-inline' vscode-resource:; img-src vscode-resource:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' ${webview.cspSource}; script-src ${webview.cspSource}; img-src ${webview.cspSource} data:;">
   <title>DeepSeek Balance</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }

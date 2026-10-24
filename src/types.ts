@@ -6,8 +6,16 @@ export interface DeepSeekBalance {
   toppedUpBalance: string;
 }
 
+// Last balance result, kept in the extension so it can be pushed to a webview
+// that resolves (or reloads) after the fetch already finished.
+export interface BalanceState {
+  balance: DeepSeekBalance | null;
+  error?: string;
+}
+
 // Messages sent from webview to extension
 export type WebviewMessage =
+  | { type: 'ready' }
   | { type: 'refreshBalance' }
   | { type: 'setApiKey' };
 
