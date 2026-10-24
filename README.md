@@ -7,6 +7,7 @@ A cute, minimal dashboard to monitor your DeepSeek API balance right in VS Code.
 ## Features
 
 - Beautiful dashboard with real-time balance display
+- Whale-girl mascot with four moods that react to your balance, plus a thinking pose while refreshing
 - Status bar indicator showing balance at a glance
 - API key stored securely in system keychain (macOS Keychain / Windows Credential Manager)
 - Auto-refresh every 5 minutes, and immediately when the VS Code window regains focus

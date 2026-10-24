@@ -11,6 +11,7 @@ export interface DeepSeekBalance {
 export interface BalanceState {
   balance: DeepSeekBalance | null;
   error?: string;
+  noApiKey?: boolean;
 }
 
 // Messages sent from webview to extension
@@ -20,5 +21,9 @@ export type WebviewMessage =
   | { type: 'setApiKey' };
 
 // Messages sent from extension to webview
-export type ExtensionMessage =
-  | { type: 'balanceUpdate'; balance: DeepSeekBalance | null; error?: string };
+export type ExtensionMessage = {
+  type: 'balanceUpdate';
+  balance: DeepSeekBalance | null;
+  error?: string;
+  noApiKey?: boolean;
+};

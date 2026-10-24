@@ -72,9 +72,13 @@ function updateStatusBar(balance: DeepSeekBalance | null, error?: string): void 
       : undefined;
 }
 
-function applyBalance(balance: DeepSeekBalance | null, error?: string): void {
-  lastState = { balance, error };
-  provider.update(balance, error);
+function applyBalance(
+  balance: DeepSeekBalance | null,
+  error?: string,
+  noApiKey = false
+): void {
+  lastState = { balance, error, noApiKey };
+  provider.update(balance, error, noApiKey);
   updateStatusBar(balance, error);
 }
 
@@ -93,7 +97,7 @@ function refreshBalance(): Promise<void> {
     try {
       const apiKey = await getApiKey();
       if (!apiKey) {
-        applyBalance(null, NO_API_KEY);
+        applyBalance(null, NO_API_KEY, true);
         return;
       }
       try {
